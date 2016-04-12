@@ -12,6 +12,7 @@ import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.view.ViewGroup;
 import android.view.animation.AnimationSet;
 import android.widget.ImageView;
 import android.widget.RelativeLayout;
@@ -32,23 +33,43 @@ public class MainActivity extends AppCompatActivity {
 
         //  rotateAni();
 
-        //  scaleAni();
+         scaleAni();
         //     alphaAni();
 
         //    aniSet();
 
 
-        colorAni();
+        //  colorAni();
+
+      //  colorAni2(Color.RED, Color.CYAN);
+
+
     }
 
-    /**
-     * 动态添加带动画的视图
-     */
-    private void colorAni() {
-        RelativeLayout relativeLayout = (RelativeLayout) findViewById(R.id.relativeLayout);
-        AnimationView animationView = new AnimationView(this);
-        relativeLayout.addView(animationView);
+
+    // 颜色渐变动画 这个要注意 无法直接采用上面的方法直接来设置 设置了也是无效的 这里涉及到给任意属性设置动画的问题
+    // 所以这里采用了ValueAnimator,监听动画过程，自己来实现属性的改变
+    private void colorAni2(int startColor, int endColor) {
+
+        ValueAnimator valueAnimator = ValueAnimator.ofArgb(startColor, endColor);
+
+        valueAnimator.addUpdateListener(new ValueAnimator.AnimatorUpdateListener() {
+            @Override
+            public void onAnimationUpdate(ValueAnimator valueAnimator) {
+
+                //找到Activity的默认View
+                View view = ((ViewGroup) findViewById(android.R.id.content)).getChildAt(0);
+
+                //改变背景色
+                view.setBackgroundColor((Integer) valueAnimator.getAnimatedValue());
+
+            }
+        });
+
+        valueAnimator.setDuration(3000);
+        valueAnimator.start();
     }
+
 
     /**
      * 1.5秒 将图像向Y轴正方向移动500
@@ -115,19 +136,4 @@ public class MainActivity extends AppCompatActivity {
         set.start();
     }
 
-
-    /**
-     * 自定义一个显示颜色动画的视图
-     */
-    class AnimationView extends View {
-        public AnimationView(Context context) {
-            super(context);
-            ValueAnimator animator = ObjectAnimator.ofInt(MainActivity.this, "backgroundColor", Color.RED, Color.CYAN);
-            animator.setEvaluator(new ArgbEvaluator()); //添加颜色估值器 否则动画过程会一直闪
-            animator.setTarget(this); //设置动画的目标对象 不设置无效果
-            animator.setDuration(3000);
-            animator.start();
-        }
-
-    }
 }
